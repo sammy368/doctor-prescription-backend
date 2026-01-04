@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { AuthorisedModule } from './authorised/authorised.module';
+import { DatabaseService } from './services/database/database.service';
+import { ServicesModule } from './services/services.module';
+import { User } from './entities/User.entity';
 
 @Module({
   imports: [
@@ -18,10 +22,13 @@ import { DataSource } from 'typeorm';
         logging: ['error', 'info', 'warn'],
         ssl: config.get('DB_URL')?.includes('ssl=true') ? { rejectUnauthorized: false } : false,
       })
-    })
+    }),
+    TypeOrmModule.forFeature([User]),
+    AuthorisedModule,
+    ServicesModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DatabaseService],
 })
 export class AppModule implements OnModuleInit {
   private readonly logger = new Logger(AppModule.name);
